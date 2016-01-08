@@ -2,6 +2,7 @@
  * Created by alex on 1/7/2016.
  */
 public class Vector {
+    public static final Vector ZERO = new Vector(0, 0);
     private final double x;
     private final double y;
 
@@ -28,6 +29,10 @@ public class Vector {
 
     public boolean isZero() {
         return x==0 && y==0;
+    }
+
+    public Vector compliment() {
+        return newInstance(-x, -y);
     }
 
     public Vector unitVector() {

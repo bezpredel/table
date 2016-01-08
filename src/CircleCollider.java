@@ -3,7 +3,7 @@
  */
 public class CircleCollider {
 
-    public void calculateCollisionCourseAdjustment(Circle a, Circle b) {
+    public TwoAdjustments calculateCollisionCourseAdjustment(Circle a, Circle b) {
         final Point pos_a = a.getLocation();
         final Point pos_b = b.getLocation();
         final double distance = pos_a.distanceTo(pos_b);
@@ -31,15 +31,22 @@ public class CircleCollider {
         final Vector newCollisionComponentOfVelocityA = (collisionComponentOfVelocityA.multiply((massA - massB) / (massA + massB)).add(collisionComponentOfVelocityB.multiply((2 * massB) / (massA + massB))));
         final Vector newCollisionComponentOfVelocityB = (collisionComponentOfVelocityB.multiply((massB - massA) / (massB + massA)).add(collisionComponentOfVelocityA.multiply((2 * massA) / (massB + massA))));
 
-        
         final Vector velocityAdjustmentA = newCollisionComponentOfVelocityA.subtract(collisionComponentOfVelocityA);
         final Vector velocityAdjustmentB = newCollisionComponentOfVelocityB.subtract(collisionComponentOfVelocityB);
 
-        final Vector newVelocityA = a.getVelocity().add(velocityAdjustmentA);
-        final Vector newVelocityB = b.getVelocity().add(velocityAdjustmentB);
+        final Vector orthogonalComponentOfVelocityA = a.getVelocity().subtract(collisionComponentOfVelocityA);
+        final Vector orthogonalComponentOfVelocityB = b.getVelocity().subtract(collisionComponentOfVelocityB);
 
-        a.setVelocity(newVelocityA);
-        b.setVelocity(newVelocityB);
+        return new TwoAdjustments(
+                velocityAdjustmentA,
+                velocityAdjustmentB,
+                collisionComponentOfVelocityA,
+                collisionComponentOfVelocityB,
+                orthogonalComponentOfVelocityA,
+                orthogonalComponentOfVelocityB,
+                newCollisionComponentOfVelocityA,
+                newCollisionComponentOfVelocityB
+        );
     }
 
 
@@ -177,4 +184,29 @@ public class CircleCollider {
         return a <= b + epsilon;
     }
 
+    public static class TwoAdjustments {
+        public final Vector velocityAdjustmentA;
+        public final Vector velocityAdjustmentB;
+
+        public final Vector originalCollisionComponentA;
+        public final Vector originalCollisionComponentB;
+
+        public final Vector orthogonalComponentA;
+        public final Vector orthogonalComponentB;
+
+        public final Vector newCollisionComponentA;
+        public final Vector newCollisionComponentB;
+
+
+        public TwoAdjustments(Vector velocityAdjustmentA, Vector velocityAdjustmentB, Vector originalCollisionComponentA, Vector originalCollisionComponentB, Vector orthogonalComponentA, Vector orthogonalComponentB, Vector newCollisionComponentA, Vector newCollisionComponentB) {
+            this.velocityAdjustmentA = velocityAdjustmentA;
+            this.velocityAdjustmentB = velocityAdjustmentB;
+            this.originalCollisionComponentA = originalCollisionComponentA;
+            this.originalCollisionComponentB = originalCollisionComponentB;
+            this.orthogonalComponentA = orthogonalComponentA;
+            this.orthogonalComponentB = orthogonalComponentB;
+            this.newCollisionComponentA = newCollisionComponentA;
+            this.newCollisionComponentB = newCollisionComponentB;
+        }
+    }
 }

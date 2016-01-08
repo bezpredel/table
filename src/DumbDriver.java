@@ -18,7 +18,7 @@ public class DumbDriver {
 //            Circle c1 = new Circle();
 //            c1.setLocation(new Point(Math.random()*w, Math.random()*h));
 //            c1.setMass(Math.random() * 0.1 + 0.05);
-//            c1.setRadius(Math.random() * 0.05);
+//            c1.setRadius(Math.random() * 0.01 + 0.05);
 //            c1.setVelocity(new Vector(2 * Math.random(), 2 * Math.random()));
 //
 //            cc.add(c1);
@@ -29,17 +29,17 @@ public class DumbDriver {
             c.setLocation(new Point(0.75, 0.25));
             c.setMass(1);
             c.setRadius(0.10);
-            c.setVelocity(new Vector(0.0, 0.20));
+            c.setVelocity(new Vector(0.0, 0.00));
 
             cc.add(c);
         }
 
         {
             Circle c = new Circle();
-            c.setLocation(new Point(0.93, 2.75));
+            c.setLocation(new Point(0.943, 2.75));
             c.setMass(1);
             c.setRadius(0.10);
-            c.setVelocity(new Vector(0.0, -0.20));
+            c.setVelocity(new Vector(0.0, -5.20));
 
             cc.add(c);
         }

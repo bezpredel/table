@@ -38,10 +38,6 @@ public class DumbModel {
 
                     double collisionTime = circleCollider.calculateCollisionTime(circleA, circleB);
 
-                    if (collisionTime < 0.00206) {
-                        System.out.println();
-                    }
-
                     if (collisionTime == Double.POSITIVE_INFINITY) {
                         continue;
                     }
@@ -78,20 +74,85 @@ public class DumbModel {
     private void advanceAll(double dt) {
         for (Circle circle : circles) {
             circle.setLocation(circle.getLocationAfterTime(dt));
+            applyDeceleration(circle, dt);
+            applyMinimumSpeed(circle);
         }
-    }
-
-    private void doBallCollision(TwoCirclesCollision collision) {
-        circleCollider.calculateCollisionCourseAdjustment(collision.getCircleA(), collision.getCircleB());
     }
 
     private void doWallCollision(WallCollision wallCollision) {
         Circle circle = wallCollision.getCircle();
         Vector currentVelocity = circle.getVelocity();
         if (wallCollision.isVerticalWall()) {
-            circle.setVelocity(new Vector(-currentVelocity.getX(), currentVelocity.getY()));
+            circle.setVelocity(new Vector(-currentVelocity.getX() * speedLossOnCollision, currentVelocity.getY()));
         } else {
-            circle.setVelocity(new Vector(currentVelocity.getX(), -currentVelocity.getY()));
+            circle.setVelocity(new Vector(currentVelocity.getX(), -currentVelocity.getY() * speedLossOnCollision));
+        }
+
+        applyMinimumSpeed(circle);
+
+    }
+
+
+    private void doBallCollision(TwoCirclesCollision collision) {
+        CircleCollider.TwoAdjustments adj = circleCollider.calculateCollisionCourseAdjustment(collision.getCircleA(), collision.getCircleB());
+
+        final Vector collA = makeLessElastic(adj.newCollisionComponentA);
+        final Vector collB = makeLessElastic(adj.newCollisionComponentB);
+
+
+        final Vector newVelocityA = adj.orthogonalComponentA.add(collA);
+        final Vector newVelocityB= adj.orthogonalComponentB.add(collB);
+
+        collision.getCircleA().setVelocity(newVelocityA);
+        collision.getCircleB().setVelocity(newVelocityB);
+
+        applyMinimumSpeed(collision.getCircleA());
+        applyMinimumSpeed(collision.getCircleB());
+
+    }
+
+
+    private double speedLossOnCollision = 0.95;
+
+    private Vector makeLessElastic(Vector speed) {
+        return speed.multiply(speedLossOnCollision);
+    }
+
+    private void applyDeceleration(Circle circle, double dt) {
+        Vector velocity = circle.getVelocity();
+        double speed = velocity.magnitude();
+
+        double deceleration = computeFrictionSlowdown(circle);
+        double speedReduction = dt * deceleration;
+
+        final Vector newVelocity;
+        if (speedReduction >= speed) {
+            newVelocity = Vector.ZERO;
+        } else {
+            double newSpeed = speed - speedReduction;
+            newVelocity = velocity.unitVector().multiply(newSpeed);
+
+        }
+
+        circle.setVelocity(newVelocity);
+
+    }
+
+    private double computeFrictionSlowdown(Circle circle) {
+        double radius = circle.getRadius();
+        double mass = circle.getMass();
+        double velocity = circle.getVelocity().magnitude();
+
+        double deceleration = 0.5; // m/s/s
+
+        return deceleration;
+    }
+
+
+    private void applyMinimumSpeed(Circle circle) {
+        double minimumVelocity = 0.08; // cm/s
+        if (circle.getVelocity().magnitude() <= minimumVelocity ) {
+            circle.setVelocity(Vector.ZERO);
         }
     }
 }
