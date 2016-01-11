@@ -69,7 +69,21 @@ public class DumbModel {
                 }
             }
         }
+
+
+        System.out.println("Total kinetic energy: " + getTotalKineticEnergy());
     }
+
+    private double getTotalKineticEnergy() {
+        double retVal = 0.0;
+
+        for (Circle circle : circles) {
+            double v = circle.getVelocity().magnitude();
+            retVal += circle.getMass() * v * v / 2;
+        }
+        return retVal;
+    }
+
 
     private void advanceAll(double dt) {
         for (Circle circle : circles) {
@@ -94,6 +108,7 @@ public class DumbModel {
 
 
     private void doBallCollision(TwoCirclesCollision collision) {
+        System.out.println(collision.getCircleA().getName() + " with " + collision.getCircleB().getName());
         CircleCollider.TwoAdjustments adj = circleCollider.calculateCollisionCourseAdjustment(collision.getCircleA(), collision.getCircleB());
 
         final Vector collA = makeLessElastic(adj.newCollisionComponentA);
@@ -112,7 +127,13 @@ public class DumbModel {
     }
 
 
-    private double speedLossOnCollision = 0.95;
+//    private double speedLossOnCollision = 0.95;
+//    private double frictionDecelerationConstantComponent = 0.5; // m/s/s
+//    private double minimumVelocity = 0.08;
+    private double speedLossOnCollision = 0.95;// fraction of speed remaining
+    private double frictionDecelerationConstantComponent = 0.3; // m/s/s
+    private double frictionDecelerationSpeedComponent = 0.2; // m/s/s per m/s/s
+    private double minimumVelocity = 0.04;
 
     private Vector makeLessElastic(Vector speed) {
         return speed.multiply(speedLossOnCollision);
@@ -143,14 +164,13 @@ public class DumbModel {
         double mass = circle.getMass();
         double velocity = circle.getVelocity().magnitude();
 
-        double deceleration = 0.5; // m/s/s
+        double deceleration = frictionDecelerationConstantComponent + velocity * frictionDecelerationSpeedComponent;
 
         return deceleration;
     }
 
 
     private void applyMinimumSpeed(Circle circle) {
-        double minimumVelocity = 0.08; // cm/s
         if (circle.getVelocity().magnitude() <= minimumVelocity ) {
             circle.setVelocity(Vector.ZERO);
         }

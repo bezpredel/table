@@ -92,16 +92,33 @@ public class Visualizer {
             }
 
             for (UICircle circle : uiCircles) {
-                if (circle.v <= 0) continue;
-
-                g.setColor(Color.black);
-
-                double lenMultiplier = 15/circle.v;
-
                 int x = xOffset + margin + scale(circle.x, multiplier);
                 int y = yOffset + margin + scale(circle.y, multiplier);
 
-                g.drawLine(x, y, (int)(x + circle.vx * lenMultiplier), (int)(y + circle.vy * lenMultiplier));
+                if (circle.v > 0) {
+
+                    double lenMultiplier = 15 / circle.v;
+
+
+                    int xEnd = (int) (x + circle.vx * lenMultiplier);
+                    int yEnd = (int) (y + circle.vy * lenMultiplier);
+
+                    g.setColor(Color.white);
+                    g.drawLine(x+1, y+1, xEnd+1, yEnd+1);
+                    g.setColor(Color.black);
+                    g.drawLine(x, y, xEnd, yEnd);
+                }
+                if (circle.name != null) {
+                    g.setFont(new Font("Courier New", Font.BOLD, 18));
+                    FontMetrics fontMetrics = g.getFontMetrics();
+                    int sw = fontMetrics.stringWidth(circle.name);
+                    int sh = fontMetrics.getHeight();
+
+                    g.setColor(Color.WHITE);
+                    g.drawString(circle.name, x+1 - sw/2, y+1+sh/2);
+                    g.setColor(Color.BLACK);
+                    g.drawString(circle.name, x - sw/2, y+sh/2);
+                }
             }
         }
     }
@@ -126,6 +143,7 @@ public class Visualizer {
     }
 
     private static class UICircle {
+        private final String name;
         private final Circle circle;
         private final Color color;
 
@@ -138,6 +156,7 @@ public class Visualizer {
         private double v;
 
         public UICircle(Circle circle, Color color) {
+            this.name = circle.getName();
             this.circle = circle;
             this.color = color;
         }

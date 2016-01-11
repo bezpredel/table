@@ -19,12 +19,13 @@ public class DumbDriver {
             final double x = 0.6;
             final double y = 0.4;
 
-
+            int cnt = 0;
             for (int row = 0; row < 5; row++) {
                 double colStartPos = row * r;
                 final double rowStartPos = row * 2 * r;
                 for (int col = row; col < 5; col++) {
                     Circle c1 = new Circle();
+                    c1.setName(Integer.toString(++cnt));
                     c1.setLocation(new Point(x + colStartPos, y + rowStartPos));
                     c1.setMass(1);
                     c1.setVelocity(Vector.ZERO);
@@ -60,10 +61,10 @@ public class DumbDriver {
 
         {
             Circle c = new Circle();
-            c.setLocation(new Point(0.943, 2.75));
+            c.setLocation(new Point(0.84, 2.75));
             c.setMass(1);
             c.setRadius(0.06);
-            c.setVelocity(new Vector(0.0, -5.20));
+            c.setVelocity(new Vector(0.0,-9));
 
             cc.add(c);
         }

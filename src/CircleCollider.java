@@ -97,7 +97,7 @@ public class CircleCollider {
 
             final double derivative_of_distance_between_balls_at_time_zero =  2 * delta_x * delta_vx + 2 * delta_y * delta_vy;
 
-            if (derivative_of_distance_between_balls_at_time_zero <= 0) {
+            if (derivative_of_distance_between_balls_at_time_zero < 0) {
                 // with the current velocities, the objects are getting closer. So they have already collided
                 return 0;
             } else {

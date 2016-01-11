@@ -3,6 +3,7 @@ public class Circle {
     private double radius;
     private Point location;
     private Vector velocity;
+    private String name;
 
     public double getMass() {
         return mass;
@@ -47,5 +48,13 @@ public class Circle {
 
     public Point getLocationAfterTime(double dt) {
         return location.shiftedBy(velocity.getX() * dt, velocity.getY() * dt);
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
     }
 }
