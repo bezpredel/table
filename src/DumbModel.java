@@ -4,25 +4,26 @@ import java.util.List;
  * Created by alex on 1/7/2016.
  */
 public class DumbModel {
-    private final Table table;
-    private final List<Circle> circles;
+    private final TableWithCircles tableWithCircles;
+    private final Context context;
 
     private final WallCollider wallCollider = new WallCollider();
     private final CircleCollider circleCollider = new CircleCollider();
 
-    public DumbModel(Table table, List<Circle> circles) {
-        this.table = table;
-        this.circles = circles;
+    public DumbModel(TableWithCircles tableWithCircles, Context context) {
+        this.tableWithCircles = tableWithCircles;
+        this.context = context;
     }
-
 
     public void advanceTime(double timeIncrement) {
         while(true) {
 
             WallCollision nextWallCollision = null;
 
+            List<Circle> circles = tableWithCircles.getCircles();
+
             for (Circle circle : circles) {
-                WallCollision wallCollision = wallCollider.calculateCollisionTime(circle, table);
+                WallCollision wallCollision = wallCollider.calculateCollisionTime(circle, tableWithCircles.getTable());
 
                 if (nextWallCollision == null || nextWallCollision.getCollisionTimeDelta() > wallCollision.getCollisionTimeDelta()) {
                     nextWallCollision = wallCollision;
@@ -77,16 +78,15 @@ public class DumbModel {
     private double getTotalKineticEnergy() {
         double retVal = 0.0;
 
-        for (Circle circle : circles) {
-            double v = circle.getVelocity().magnitude();
-            retVal += circle.getMass() * v * v / 2;
+        for (Circle circle : tableWithCircles.getCircles()) {
+            retVal += circle.getKineticEnergy();
         }
         return retVal;
     }
 
 
     private void advanceAll(double dt) {
-        for (Circle circle : circles) {
+        for (Circle circle : tableWithCircles.getCircles()) {
             circle.setLocation(circle.getLocationAfterTime(dt));
             applyDeceleration(circle, dt);
             applyMinimumSpeed(circle);
@@ -97,9 +97,9 @@ public class DumbModel {
         Circle circle = wallCollision.getCircle();
         Vector currentVelocity = circle.getVelocity();
         if (wallCollision.isVerticalWall()) {
-            circle.setVelocity(new Vector(-currentVelocity.getX() * speedLossOnCollision, currentVelocity.getY()));
+            circle.setVelocity(new Vector(-currentVelocity.getX() * context.getSpeedLossOnCollision(), currentVelocity.getY()));
         } else {
-            circle.setVelocity(new Vector(currentVelocity.getX(), -currentVelocity.getY() * speedLossOnCollision));
+            circle.setVelocity(new Vector(currentVelocity.getX(), -currentVelocity.getY() * context.getSpeedLossOnCollision()));
         }
 
         applyMinimumSpeed(circle);
@@ -126,17 +126,8 @@ public class DumbModel {
 
     }
 
-
-//    private double speedLossOnCollision = 0.95;
-//    private double frictionDecelerationConstantComponent = 0.5; // m/s/s
-//    private double minimumVelocity = 0.08;
-    private double speedLossOnCollision = 0.95;// fraction of speed remaining
-    private double frictionDecelerationConstantComponent = 0.3; // m/s/s
-    private double frictionDecelerationSpeedComponent = 0.2; // m/s/s per m/s/s
-    private double minimumVelocity = 0.04;
-
     private Vector makeLessElastic(Vector speed) {
-        return speed.multiply(speedLossOnCollision);
+        return speed.multiply(context.getSpeedLossOnCollision());
     }
 
     private void applyDeceleration(Circle circle, double dt) {
@@ -164,14 +155,14 @@ public class DumbModel {
         double mass = circle.getMass();
         double velocity = circle.getVelocity().magnitude();
 
-        double deceleration = frictionDecelerationConstantComponent + velocity * frictionDecelerationSpeedComponent;
+        double deceleration = context.getFrictionDecelerationConstantComponent() + velocity * context.getFrictionDecelerationSpeedComponent();
 
         return deceleration;
     }
 
 
     private void applyMinimumSpeed(Circle circle) {
-        if (circle.getVelocity().magnitude() <= minimumVelocity ) {
+        if (circle.getVelocity().magnitude() <= context.getMinimumVelocity() ) {
             circle.setVelocity(Vector.ZERO);
         }
     }
